@@ -8,6 +8,8 @@ jobs:
     docker:
       - image: circleci/openjdk:8
     steps:
+      - checkout
+
       - compare-url/reconstruct
 
       - run:
@@ -16,7 +18,26 @@ jobs:
           command: |
             # save value stored in file to a local env var
             CIRCLE_COMPARE_URL=$(cat CIRCLE_COMPARE_URL.txt)
-
             COMMIT_RANGE=$(echo $CIRCLE_COMPARE_URL | sed 's:^.*/compare/::g')
-
             echo \"Commit range: $COMMIT_RANGE\"
+
+            for PROJECT in .circleci/list-projects.sh; do
+              PROJECT_NAME=$(basename $PROJECT)
+              if [[ $(git diff $COMMIT_RANGE --name-status | grep "$PROJECT") ]]; then
+                echo "Triggering build for $PROJECT"
+                curl --user ${CIRCLE_API_USER_TOKEN} \
+                  --data build_parameters[CIRCLE_JOB]=$PROJECT_NAME \
+                  --data revision=$CIRCLE_SHA1 \
+                  https://circleci.com/api/v2.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH
+              fi
+            done
+
+  server:
+    docker:
+      - image: circleci/openjdk:8
+    working_directory: ~/project/apps/server
+    steps:
+      - checkout
+      - run:
+          name: Build Server
+          shell: gradlew build

@@ -1,0 +1,3 @@
+apps/*
+libs/*
+tools/gradle-plugins/*
