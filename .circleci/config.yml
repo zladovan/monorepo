@@ -25,11 +25,9 @@ jobs:
               PROJECT_NAME=$(basename $PROJECT)
               if [[ $(git diff $COMMIT_RANGE --name-status | grep "$PROJECT") ]]; then
                 echo "Triggering build for $PROJECT"
-                curl -X POST --header "Content-Type: application/json" -d '{ \
-                  "build_parameters": { \
-                    "CIRCLE_JOB": "$PROJECT_NAME" \
-                  } \
-                }' \
+                curl -X POST \
+                --data build_parameters[CIRCLE_JOB]=$PROJECT_NAME \
+                --data revision=$CIRCLE_SHA1 \
                 https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME?circle-token=$CIRCLE_API_USER_TOKEN
               fi
             done
