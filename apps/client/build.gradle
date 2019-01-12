@@ -1,0 +1,13 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.zlad.gradle.versioning'
+}
+
+group "com.zlad.monorepo"
+
+dependencies {
+    compile 'com.zlad.monorepo:common'
+}
+
+mainClassName = 'com.zlad.monorepo.client.ClientApp'

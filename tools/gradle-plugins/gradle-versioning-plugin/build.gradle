@@ -1,0 +1,25 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://plugins.gradle.org/m2/" }
+}
+
+dependencies {
+    compile "gradle.plugin.com.palantir.gradle.gitversion:gradle-git-version:$gitPluginVersion"
+}
+
+group = 'com.zlad.gradle'
+
+gradlePlugin {
+    plugins {
+        customPlugin {
+            id = 'com.zlad.gradle.versioning'
+            implementationClass = 'com.zlad.gradle.versioning.VersioningPlugin'
+        }
+    }
+}
