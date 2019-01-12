@@ -1,0 +1,20 @@
+orbs:
+  compare-url: iynere/compare-url@0.4.5
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8
+    steps:
+      - compare-url/reconstruct
+
+      - run:
+          name: Publish modified orbs
+          shell: /bin/bash -exo pipefail
+          command: |
+            # save value stored in file to a local env var
+            CIRCLE_COMPARE_URL=$(cat CIRCLE_COMPARE_URL.txt)
+
+            COMMIT_RANGE=$(echo $CIRCLE_COMPARE_URL | sed 's:^.*/compare/::g')
+
+            echo \"Commit range: $COMMIT_RANGE\"
