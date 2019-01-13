@@ -3,6 +3,17 @@ version: 2.1
 orbs:
   compare-url: iynere/compare-url@0.4.5
 
+workflows:
+  main:
+    jobs:
+      - build
+  server:
+    jobs:
+      - server:
+          filters:
+            tags:
+              only: /^server$/
+
 jobs:
   build:
     docker:
@@ -25,10 +36,8 @@ jobs:
               PROJECT_NAME=$(basename $PROJECT)
               if [[ $(git diff $COMMIT_RANGE --name-status | grep "$PROJECT") ]]; then
                 echo "Triggering build for $PROJECT"
-                curl -X POST \
-                --data build_parameters[CIRCLE_JOB]=$PROJECT_NAME \
-                --data revision=$CIRCLE_SHA1 \
-                https://circleci.com/api/v2.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME?circle-token=$CIRCLE_API_USER_TOKEN
+                curl -X POST  --data tag=$PROJECT_NAME \
+                https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/build?circle-token=$CIRCLE_API_USER_TOKEN
               fi
             done
 
@@ -40,4 +49,4 @@ jobs:
       - checkout
       - run:
           name: Build Server
-          shell: gradlew build
+          command: ./gradlew build
