@@ -13,7 +13,7 @@ jobs:
       - compare-url/reconstruct
 
       - run:
-          name: Publish modified orbs
+          name: Trigger build for modified projects
           shell: /bin/bash -exo pipefail
           command: |
             # save value stored in file to a local env var
@@ -28,7 +28,7 @@ jobs:
                 curl -X POST \
                 --data build_parameters[CIRCLE_JOB]=$PROJECT_NAME \
                 --data revision=$CIRCLE_SHA1 \
-                https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME?circle-token=$CIRCLE_API_USER_TOKEN
+                https://circleci.com/api/v2.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME?circle-token=$CIRCLE_API_USER_TOKEN
               fi
             done
 
