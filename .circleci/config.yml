@@ -4,12 +4,6 @@ workflows:
   main:
     jobs:
       - build
-  server:
-    jobs:
-      - server:
-          filters:
-            tags:
-              only: /^server$/
 
 jobs:
   build:
