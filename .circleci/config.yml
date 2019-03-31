@@ -33,7 +33,7 @@ jobs:
             fi
             echo "Commit range: $COMMIT_RANGE"
 
-            CHANGED_PATHS = $(git diff $COMMIT_RANGE --name-status)
+            CHANGED_PATHS=$(git diff $COMMIT_RANGE --name-status)
             echo -e "Changed paths:\n$CHANGED_PATHS" 
 
             for PROJECT in $(.circleci/list-projects.sh); do
