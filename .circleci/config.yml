@@ -55,5 +55,5 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Build Server
+          name: Build Client
           command: ./gradlew build        
