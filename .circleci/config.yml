@@ -1,10 +1,5 @@
 version: 2.1
 
-workflows:
-  main:
-    jobs:
-      - build
-
 jobs:
   build:
     docker:
@@ -52,3 +47,13 @@ jobs:
       - run:
           name: Build Server
           command: ./gradlew build
+
+  client:
+    docker:
+      - image: circleci/openjdk:8
+    working_directory: ~/project/apps/client
+    steps:
+      - checkout
+      - run:
+          name: Build Server
+          command: ./gradlew build        
