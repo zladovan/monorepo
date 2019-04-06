@@ -5,3 +5,4 @@ includeBuild '../../tools/gradle-plugins/gradle-versioning-plugin'
 
 // libs
 includeBuild '../../libs/common'
+includeBuild '../../libs/logging'

@@ -28,7 +28,7 @@ jobs:
             for PROJECT in $(.circleci/list-projects.sh); do
               PROJECT_NAME=$(basename $PROJECT)
               echo "Checking if there were changes in project '$PROJECT_NAME'..."
-              if [[ $(echo "$CHANGED_PATHS" | grep "$PROJECT") ]]; then
+              if [[ $(echo "$CHANGED_PATHS" | grep "$PROJECT") ]]; then                
                 echo "Triggering build for project '$PROJECT_NAME'"
                 curl -s -u ${CIRCLE_API_USER_TOKEN}: \
                   -d build_parameters[CIRCLE_JOB]=${PROJECT_NAME} \
@@ -36,7 +36,7 @@ jobs:
               else
                 echo "No changes in project '$PROJECT_NAME'"  
               fi
-            done
+            done            
 
   server:
     docker:
@@ -57,3 +57,23 @@ jobs:
       - run:
           name: Build Client
           command: ./gradlew build        
+
+  common:
+    docker:
+      - image: circleci/openjdk:8
+    working_directory: ~/project/libs/common
+    steps:
+      - checkout
+      - run:
+          name: Build Common
+          command: ./gradlew build      
+
+  logging:
+    docker:
+      - image: circleci/openjdk:8
+    working_directory: ~/project/libs/logging
+    steps:
+      - checkout
+      - run:
+          name: Build Logging
+          command: ./gradlew build      

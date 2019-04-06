@@ -8,6 +8,7 @@ group 'com.zlad.monorepo'
 
 dependencies {
     compile 'com.zlad.monorepo:common'
+    compile 'com.zlad.monorepo:logging'
 }
 
 mainClassName = 'com.zlad.monorepo.server.ServerApp'
