@@ -8,6 +8,8 @@
 #   build.sh
 ##
 
+set -e
+
 # Find script directory
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -18,10 +20,8 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
 # Configuration with default values
-: "${CI:=$DIR/circleci.sh}"
-# CI="$DIR/circleci.sh"
-
-set -e
+# : "${CI:=$DIR/circleci.sh}"
+CI="$DIR/circleci.sh"
 
 echo "${CI} hash last"
 ls -all

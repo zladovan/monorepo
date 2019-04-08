@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Trigger build for modified projects
-          shell: /bin/bash -exo pipefail
+          shell: /bin/bash
           command: .circleci/build.sh
 
   server:
