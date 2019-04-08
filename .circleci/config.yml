@@ -9,34 +9,7 @@ jobs:
       - run:
           name: Trigger build for modified projects
           shell: /bin/bash -exo pipefail
-          command: |
-            # Identify modified directories
-            LAST_SUCCESSFUL_BUILD_URL="https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH?filter=completed&limit=1"
-            LAST_SUCCESSFUL_COMMIT=`curl -Ss -u "$CIRCLE_TOKEN:" $LAST_SUCCESSFUL_BUILD_URL | jq -r '.[0]["vcs_revision"]'`
-            
-            #first commit in a branch
-            if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
-              COMMIT_RANGE="origin/master"
-            else
-              COMMIT_RANGE="${CIRCLE_SHA1}..${LAST_SUCCESSFUL_COMMIT}"
-            fi
-            echo "Commit range: $COMMIT_RANGE"
-
-            CHANGED_PATHS=$(git diff $COMMIT_RANGE --name-status)
-            echo -e "Changed paths:\n$CHANGED_PATHS" 
-
-            for PROJECT in $(.circleci/list-projects.sh); do
-              PROJECT_NAME=$(basename $PROJECT)
-              echo "Checking if there were changes in project '$PROJECT_NAME'..."
-              if [[ $(echo "$CHANGED_PATHS" | grep "$PROJECT") ]]; then                
-                echo "Triggering build for project '$PROJECT_NAME'"
-                curl -s -u ${CIRCLE_API_USER_TOKEN}: \
-                  -d build_parameters[CIRCLE_JOB]=${PROJECT_NAME} \
-                  https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH
-              else
-                echo "No changes in project '$PROJECT_NAME'"  
-              fi
-            done            
+          command: .circleci/build.sh
 
   server:
     docker:
