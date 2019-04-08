@@ -20,8 +20,8 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
 # Configuration with default values
-# : "${CI:=$DIR/circleci.sh}"
-CI="$DIR/circleci.sh"
+: "${CI:=$DIR/circleci.sh}"
+# CI="$DIR/circleci.sh"
 
 echo "${CI} hash last"
 ls -all
