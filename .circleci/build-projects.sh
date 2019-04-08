@@ -25,7 +25,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Configuration with default values
 : "${BUILD_MAX_SECONDS:=$(( 15 * 60 ))}"
 : "${BUILD_CHECK_AFTER_SECONDS:=15}"
-: "${CI:=$DIR/circleci.sh}"
+: "${CI_TOOL:=$DIR/circleci.sh}"
 
 # Validate requirements
 if [[ "$#" -eq 0 ]]; then
@@ -39,7 +39,7 @@ PROJECTS=()
 for PROJECT in $@; do
     echo "Triggering build for project '$PROJECT'"
     PROJECT_NAME=$(basename $PROJECT)
-    BUILD_NUM=$(${CI} build $PROJECT_NAME)    
+    BUILD_NUM=$(${CI_TOOL} build $PROJECT_NAME)    
     echo "Build triggered for project '$PROJECT' with number '$BUILD_NUM'"    
     PROJECTS=(${PROJECTS[@]} "$PROJECT,$BUILD_NUM,null")
 done;
@@ -54,7 +54,7 @@ for (( BUILD_SECONDS=0; BUILD_SECONDS<=${BUILD_MAX_SECONDS}; BUILD_SECONDS+=$BUI
         BUILD_NUM=$(echo "$PROJECT_INFO" | cut -d "," -f2)    
         BUILD_OUTCOME=$(echo "$PROJECT_INFO" | cut -d "," -f3)
         if [[ "$BUILD_OUTCOME" == "null" ]]; then            
-            BUILD_OUTCOME=$(${CI} status ${BUILD_NUM})
+            BUILD_OUTCOME=$(${CI_TOOL} status ${BUILD_NUM})
             PROJECTS[$PROJECT_INDEX]="$PROJECT,$BUILD_NUM,$BUILD_OUTCOME"
         fi    
     done
