@@ -132,7 +132,7 @@ function get_build_status {
 function get_last_successful_commit {
     require_env_var CIRCLE_BRANCH
     get "tree/$CIRCLE_BRANCH?filter=successful&limit=100" \
-        | jq '[.[]|select(.workflows.job_name=="build")] | max_by(.build_num).vcs_revision'    
+        | jq --raw-output '[.[]|select(.workflows.job_name=="build")] | max_by(.build_num).vcs_revision'    
 }
 
 ##
