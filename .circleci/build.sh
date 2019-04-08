@@ -13,9 +13,12 @@ set -e
 # Find script directory (no support for symlinks)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-
 # Configuration with default values
 : "${CI:=$DIR/circleci.sh}"
+
+echo "${CI} hash last"
+ls -all
+echo $CIRCLE_SHA1
 
 # Resolve commit range for current build 
 LAST_SUCCESSFUL_COMMIT=$(${CI} hash last)
