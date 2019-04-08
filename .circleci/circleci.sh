@@ -18,7 +18,7 @@ Available commands:
                             outputs one of: success | failed | null
     hash <position>         get revision hash on given positions
                             available positions:
-                                last        hash of last succesfull build commit
+                                last        hash of last succesfull build infoking main build 
                                             requires: CIRCLE_BRANCH
                                 current     hash of current commit
                                             requires: CIRCLE_SHA1
@@ -124,14 +124,15 @@ function get_build_status {
 }
 
 ##
-# Get revision hash of last successful commit
+# Get revision hash of last successful commit which invokes main monorepository build
 #
 # Output:
 #   revision hash or null when there were no commits yet
 ##
 function get_last_successful_commit {
     require_env_var CIRCLE_BRANCH
-    get "tree/$CIRCLE_BRANCH?filter=completed&limit=1" | jq -r '.[0]["vcs_revision"]'    
+    get "tree/$CIRCLE_BRANCH?filter=successful&limit=100" \
+        | jq '[.[]|select(.workflows.job_name=="build")] | max_by(.build_num).vcs_revision'    
 }
 
 ##

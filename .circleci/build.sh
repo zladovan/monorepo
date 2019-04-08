@@ -27,6 +27,13 @@ echo "Commit range: $COMMIT_RANGE"
 
 # Collect all modified projects
 PROJECTS_TO_BUILD=$($DIR/list-projects-to-build.sh $COMMIT_RANGE)
+
+# If nothing to build inform and exit
+if [[ -z "$PROJECTS_TO_BUILD" ]]; then
+    echo "No projects to build"
+    exit 0
+fi
+
 echo "Following projects need to be built"
 echo -e "$PROJECTS_TO_BUILD"
 
