@@ -100,6 +100,6 @@ Folder structure used in this repository is only an example of how it can look l
   - add support for other popular CI tools (e.g. [Travis](https://travis-ci.org/), [Jenkins](https://jenkins.io/), ...)
   - create [Circleci orb](https://circleci.com/orbs/) 
 
-# Credits
+## Credits
 
 Thanks to [Tufin](https://github.com/Tufin) for inspiration in [Tufin/circleci-monorepo](https://github.com/Tufin/circleci-monorepo).
