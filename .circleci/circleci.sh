@@ -18,11 +18,12 @@ Available commands:
                             outputs one of: success | failed | null
     hash <position>         get revision hash on given positions
                             available positions:
-                                last        hash of last succesfull build infoking main build 
+                                last        hash of last succesfull build commit
+                                            only commits of 'build' job are considered
                                             requires: CIRCLE_BRANCH
                                 current     hash of current commit
                                             requires: CIRCLE_SHA1
-                            requires: CIRCLE_BRANCH                            
+                                            requires: CIRCLE_BRANCH                            
     help                    display this usage text                             
 EOM
 
@@ -59,6 +60,13 @@ function require_env_var {
     fi  
 }
 
+##
+# Fast fail when given parameter is empty
+#
+# Input:
+#   MESSAGE - message to show when requirement is not met
+#   PARAM - parameter which should be not null
+##
 function require_not_null {
     local MESSAGE=$1
     if [[ -z "$2" ]]; then
