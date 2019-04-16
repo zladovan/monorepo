@@ -10,6 +10,8 @@ Usage:
     Output list is ordered respecting dependencies between projects (lower projects depends on upper).
     There can be multiple projects (separated by space) on single line which means they can be build on parallel.
    
+    If one of commit messages in given commit range contains [rebuild-all] flag then all projects will be listed.
+
     <revision reange>       range of revision hashes where changes will be looked for
                             format is HASH1..HASH2
 EOM
