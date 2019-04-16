@@ -16,6 +16,7 @@ Available commands:
                             requires: CIRCLE_BRANCH  
     status <build_number>   get status of build identified by given build number
                             outputs one of: success | failed | null
+    kill <build_number>     kills running build identified by given build number                            
     hash <position>         get revision hash on given positions
                             available positions:
                                 last        hash of last succesfull build commit
@@ -85,7 +86,10 @@ function require_not_null {
 function post {
     local URL=$1
     local DATA=$2
-    curl -s -u ${CIRCLE_API_USER_TOKEN}: -d ${DATA} ${CIRCLECI_URL}/${URL}
+    if [[ ! -z $DATA ]]; then
+        DATA="-d $DATA"
+    fi
+    curl -s -u ${CIRCLE_API_USER_TOKEN}: ${DATA} ${CIRCLECI_URL}/${URL}
 }
 
 ##
@@ -132,6 +136,19 @@ function get_build_status {
     echo "$STATUS_RESPONSE" | jq -r '.["outcome"]'
 }
 
+
+##
+# Kill circleci build
+#
+# Input:
+#   BUILD_NUM - build identification number
+##
+function kill_build {
+    local BUILD_NUM=$1
+    require_not_null "Build number not speficied" ${BUILD_NUM} 
+    STATUS_RESPONSE=$(post ${BUILD_NUM}/cancel)
+}
+
 ##
 # Get revision hash of last successful commit which invokes main monorepository build
 #
@@ -172,6 +189,9 @@ case $1 in
     status)
         get_build_status $2
         ;;
+    kill)
+        kill_build $2
+        ;;    
     hash)
         case $2 in
             last)

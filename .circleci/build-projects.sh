@@ -92,3 +92,13 @@ for (( BUILD_SECONDS=0; BUILD_SECONDS<=${BUILD_MAX_SECONDS}; BUILD_SECONDS+=$BUI
     fi
 
 done    
+
+echo "Timeout! Some builds were not finished withing $BUILD_MAX_SECONDS seconds."
+echo "Not finished builds:"
+for RUNNING in $(echo "$BUILDS_RUNNING"); do 
+    echo "\t$RUNNING"
+    BUILD_NUM=$(echo $RUNNING | sed -r 's/.*\(([0-9]+)\)/\1/')
+    ${CI_TOOL} kill ${BUILD_NUM}
+done
+echo "All not finished build were killed"
+exit 1
