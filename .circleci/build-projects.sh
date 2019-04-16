@@ -100,5 +100,5 @@ for RUNNING in $(echo "$BUILDS_RUNNING"); do
     BUILD_NUM=$(echo $RUNNING | sed -r 's/.*\(([0-9]+)\)/\1/')
     ${CI_TOOL} kill ${BUILD_NUM}
 done
-echo "All not finished build were killed"
+echo "All not finished builds were killed"
 exit 1
