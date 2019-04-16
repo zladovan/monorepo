@@ -50,3 +50,14 @@ jobs:
       - run:
           name: Build Logging
           command: ./gradlew build      
+
+  gradle-versioning-plugin:
+    docker:
+      - image: circleci/openjdk:8
+    working_directory: ~/project/tools/gradle-plugins/gradle-versioning-plugin
+    steps:
+      - checkout
+      - run:
+          name: Build Gradle Versioning Plugin
+          command: ./gradlew build   
+
