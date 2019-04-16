@@ -59,14 +59,19 @@ function process_dependants {
     echo -e "$DEPENDENCIES"
 }
 
-# For all known projects check if there was a change and look for all dependant projects
-for PROJECT in $(${DIR}/list-projects.sh); do
-    PROJECT_NAME=$(basename $PROJECT)
-    if [[ $(echo -e "$CHANGED_PATHS" | grep "$PROJECT") ]]; then                
-        CHANGED_PROJECTS="$CHANGED_PROJECTS\n$PROJECT"
-        CHANGED_DEPENDENCIES="$CHANGED_DEPENDENCIES\n$(process_dependants $PROJECT)"                 
-    fi               
-done
+# If [rebuild-all] command passed it's enought to take all dependencies as changed
+if [[ $(git log "$COMMIT_RANGE" | grep "\[rebuild-all\]") ]]; then
+    CHANGED_DEPENDENCIES="$PROJECT_DEPENDENCIES"
+else    
+    # For all known projects check if there was a change and look for all dependant projects
+    for PROJECT in $(${DIR}/list-projects.sh); do
+        PROJECT_NAME=$(basename $PROJECT)
+        if [[ $(echo -e "$CHANGED_PATHS" | grep "$PROJECT") ]]; then                
+            CHANGED_PROJECTS="$CHANGED_PROJECTS\n$PROJECT"
+            CHANGED_DEPENDENCIES="$CHANGED_DEPENDENCIES\n$(process_dependants $PROJECT)"                 
+        fi               
+    done
+fi
 
 # Build output 
 PROJECTS_TO_BUILD=$(echo -e "$CHANGED_DEPENDENCIES" | tsort | tac)

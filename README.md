@@ -43,6 +43,13 @@ Dependencies are based on Gradle's [composite build](https://docs.gradle.org/cur
 
 To respect dependencies between projects jobs are triggered in multiple rounds. For each round one or more jobs are triggered and only when all jobs are succesfuly finished next round is processed. Even if there is only one failed job all next rounds are skipped and whole build is failed. 
 
+## Special commands
+
+Commit message can contain some special words which if found can modify default building behaviour.
+
+Supported commands:
+ - **[rebuild-all]** - build all projects instead of only changed 
+
 ## Implementation
 
 Whole logic is implemented as bunch of [Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) scripts under directory `.circleci`. Every script can be run directly and it should output some documentation when it requires some parameters.
@@ -59,7 +66,7 @@ There is tool called [jq](https://stedolan.github.io/jq/) used for JSON parsing.
 
 ## How to run locally
 
-It is possible to run `.circleci/build.sh` locally but there is need to provied few environment variables.
+It is possible to run `.circleci/build.sh` locally but there is need to provide few environment variables.
 
     CIRCLE_API_USER_TOKEN=XXX \
     CIRCLE_PROJECT_USERNAME=zladovan \

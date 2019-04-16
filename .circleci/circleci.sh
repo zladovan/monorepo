@@ -30,6 +30,7 @@ EOM
 set -e
 
 # Constants
+# TODO: There is different link for bitbucket projects (../project/bitbucket/..)
 CIRCLECI_URL="https://circleci.com/api/v1.1/project/github/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
 
 # Functions

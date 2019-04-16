@@ -19,6 +19,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Resolve commit range for current build 
 LAST_SUCCESSFUL_COMMIT=$(${CI_TOOL} hash last)
 if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
+    #TODO:  set to first commit instead of current changes ?
+    #       there was issue when something failed on first commit and after fix next commit just shown "No projects to build"
+    #LAST_SUCCESSFUL_COMMIT=$(git rev-list --max-parents=0 HEAD)
     COMMIT_RANGE="origin/master"
 else
     COMMIT_RANGE="$(${CI_TOOL} hash current)..${LAST_SUCCESSFUL_COMMIT}"
