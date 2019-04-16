@@ -105,7 +105,7 @@ Folder structure used in this repository is only an example of how it can look l
   - improve parrallel exections support
   - create Gradle plugin with same logic as in bash scripts (as a separate project)
   - add support for other popular CI tools (e.g. [Travis](https://travis-ci.org/), [Jenkins](https://jenkins.io/), ...)
-  - create [Circleci orb](https://circleci.com/orbs/) 
+  - create [Circleci orb](https://circleci.com/orbs/)
 
 ## Credits
 

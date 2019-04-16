@@ -59,8 +59,9 @@ function process_dependants {
     echo -e "$DEPENDENCIES"
 }
 
-# If [rebuild-all] command passed it's enought to take all dependencies as changed
+# If [rebuild-all] command passed it's enought to take all projects and all dependencies as changed
 if [[ $(git log "$COMMIT_RANGE" | grep "\[rebuild-all\]") ]]; then
+    CHANGED_PROJECTS="$(${DIR}/list-projects.sh)"
     CHANGED_DEPENDENCIES="$PROJECT_DEPENDENCIES"
 else    
     # For all known projects check if there was a change and look for all dependant projects
