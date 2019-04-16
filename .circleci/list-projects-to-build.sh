@@ -18,6 +18,7 @@ set -e
 
 # Capture input parameter and validate it
 COMMIT_RANGE=$1
+COMMIT_RANGE_FOR_LOG="$(echo $COMMIT_RANGE | sed -e 's/\.\./.../g')"
 
 if [[ -z $COMMIT_RANGE ]]; then
     echo "ERROR: You need to provide revision range in fomrat HASH1..HASH2 as input parameter"
@@ -60,7 +61,7 @@ function process_dependants {
 }
 
 # If [rebuild-all] command passed it's enought to take all projects and all dependencies as changed
-if [[ $(git log "$COMMIT_RANGE" | grep "\[rebuild-all\]") ]]; then
+if [[ $(git log "$COMMIT_RANGE_FOR_LOG" | grep "\[rebuild-all\]") ]]; then
     CHANGED_PROJECTS="$(${DIR}/list-projects.sh)"
     CHANGED_DEPENDENCIES="$PROJECT_DEPENDENCIES"
 else    
