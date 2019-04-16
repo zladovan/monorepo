@@ -89,7 +89,7 @@ function post {
     if [[ ! -z $DATA ]]; then
         DATA="-d $DATA"
     fi
-    curl -s -u ${CIRCLE_API_USER_TOKEN}: ${DATA} ${CIRCLECI_URL}/${URL}
+    curl -XPOST -s -u ${CIRCLE_API_USER_TOKEN}: ${DATA} ${CIRCLECI_URL}/${URL}
 }
 
 ##
