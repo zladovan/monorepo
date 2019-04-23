@@ -16,7 +16,8 @@ jobs:
       - image: circleci/openjdk:8
     working_directory: ~/project/apps/server
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
           name: Build Server
           command: ./gradlew build
@@ -26,7 +27,8 @@ jobs:
       - image: circleci/openjdk:8
     working_directory: ~/project/apps/client
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
           name: Build Client
           command: ./gradlew build        
@@ -36,7 +38,8 @@ jobs:
       - image: circleci/openjdk:8
     working_directory: ~/project/libs/common
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
           name: Build Common
           command: ./gradlew build      
@@ -46,7 +49,8 @@ jobs:
       - image: circleci/openjdk:8
     working_directory: ~/project/libs/logging
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
           name: Build Logging
           command: ./gradlew build      
@@ -56,7 +60,8 @@ jobs:
       - image: circleci/openjdk:8
     working_directory: ~/project/tools/gradle-plugins/gradle-versioning-plugin
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
           name: Build Gradle Versioning Plugin
           command: ./gradlew build   
