@@ -4,5 +4,5 @@ pipelines:
   default:
     - step:
         script: 
-          - 'echo "Commit: ${BITBUCKET_COMMIT}"
+          - 'echo "Commit: ${BITBUCKET_COMMIT}"'
 
