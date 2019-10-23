@@ -4,4 +4,5 @@ pipelines:
   default:
     - step:
         script: 
-          - bash .circleci/build.sh
+          - bash echo ${BITBUCKET_COMMIT}
+          
