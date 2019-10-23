@@ -4,5 +4,13 @@ pipelines:
   default:
     - step:
         script: 
-          - 'echo "Commit: ${BITBUCKET_COMMIT}"'
-
+          - bash .circleci/build.sh
+  custom:
+    server:
+      - step:
+          script:
+            - echo "Building server"
+    client:
+      - step:
+          script:
+            - echo "Building client"
