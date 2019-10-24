@@ -21,6 +21,7 @@ Available commands:
                             available positions:
                                 last        hash of last succesfull build commit
                                             only commits of 'build' job are considered
+                                            accepts: BITBUCKET_BRANCH, if ommited no branch filtering
                                 current     hash of current commit
                                             requires: BITBUCKET_COMMIT                         
     help                    display this usage text                             
@@ -75,10 +76,10 @@ function require_not_null {
 }
 
 ##
-# Make HTTP POST call to circleci
+# Make HTTP POST call to bitbucket
 #
 # Input:
-#   URL - part of URL after circleci base url
+#   URL - part of URL after bitbucket base url
 #   DATA - form data to post (optional)
 ##
 function post {
@@ -91,10 +92,10 @@ function post {
 }
 
 ##
-# Make HTTP GET call to circleci
+# Make HTTP GET call to bitbucket
 #
 # Input:
-#   URL - part of URL after circleci base url
+#   URL - part of URL after bitbucket base url
 ##
 function get {
     local URL=$1
@@ -102,7 +103,7 @@ function get {
 }
 
 ##
-# Trigger build in circleci
+# Trigger build in bitbucket
 #
 # Input:
 #   PROJECT_NAME - name of project to start build for
@@ -117,10 +118,10 @@ function trigger_build {
     BODY="$(cat <<-EOM
     {
         "target": {
-        "selector": {
-            "type": "custom",
-            "pattern": "$PROJECT_NAME"
-        },
+            "selector": {
+                "type": "custom",
+                "pattern": "$PROJECT_NAME"
+            },
             "type": "pipeline_ref_target",
             "ref_name": "$BITBUCKET_BRANCH",
             "ref_type": "branch"
@@ -133,7 +134,7 @@ EOM
 }
 
 ##
-# Get status of circleci build
+# Get status of bitbucket build
 #
 # Input:
 #   BUILD_NUM - build identification number
@@ -161,7 +162,7 @@ function get_build_status {
 
 
 ##
-# Kill circleci build
+# Kill bitbucket build
 #
 # Input:
 #   BUILD_NUM - build identification number
@@ -180,8 +181,13 @@ function kill_build {
 ##
 function get_last_successful_commit {
     #TODO handle case when last successful commit is not on page
+    if [[ -z "$BITBUCKET_BRANCH" ]]; then
+        SELECTOR='.target.selector.type=="default"'
+    else
+        SELECTOR='(.target.selector.type=="branch") and (.target.selector.pattern=="'${BITBUCKET_BRANCH}'")'
+    fi
     get "pipelines/?sort=-created_on&status=PASSED&status=SUCCESSFUL&page=1&pagelen=20" \
-        | jq --raw-output '[.values[]|select(.target.selector.type=="default")] | max_by(.build_number).target.commit.hash'
+        | jq --raw-output "[.values[]|select($SELECTOR)] | max_by(.build_number).target.commit.hash"
 }
 
 ##
