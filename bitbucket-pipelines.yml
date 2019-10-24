@@ -41,7 +41,7 @@ pipelines:
             - cd libs/logging
             - ./gradlew clean build    
 
-    gradle-versioning-pluginng:
+    gradle-versioning-plugin:
       - step:
           name: Build Gradle Versioning Plugin
           caches:
