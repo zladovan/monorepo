@@ -14,7 +14,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Configuration with default values
-: "${CI_TOOL:=$DIR/circleci.sh}"
+: "${CI_TOOL:=$DIR/pipelines.sh}"
 
 # Resolve commit range for current build 
 LAST_SUCCESSFUL_COMMIT=$(${CI_TOOL} hash last)

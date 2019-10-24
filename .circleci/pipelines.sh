@@ -5,7 +5,7 @@ read -r -d '' USAGE_TEXT << EOM
 Usage: pipelines.sh command [<param>...]
 Run given command in bitbucket pipelines.
 
-Requires circleci environment variables (additional may be required for specific commands):
+Requires bitbucket environment variables (additional may be required for specific commands):
     BITBUCKET_USER
     BITBUCKET_PASSWORD
     BITBUCKET_REPO_FULL_NAME
@@ -13,7 +13,7 @@ Requires circleci environment variables (additional may be required for specific
 Available commands:  
     build <project_name>    start build of given project
                             outputs build number
-                            requires: CIRCLE_BRANCH  
+                            requires: BITBUCKET_BRANCH
     status <build_number>   get status of build identified by given build number
                             outputs one of: success | failed | null
     kill <build_number>     kills running build identified by given build number                            
@@ -85,9 +85,9 @@ function post {
     local URL=$1
     local DATA=$2
     if [[ ! -z $DATA ]]; then
-        DATA="-d $DATA"
+        DATA="-H 'Content-Type: application/json' -d '$DATA'"
     fi
-    curl -XPOST -s -u ${BITBUCKET_USER}:${BITBUCKET_PASSWORD} ${DATA} ${BITBUCKET_URL}/${URL}
+    eval "curl -XPOST -s -g -u ${BITBUCKET_USER}:${BITBUCKET_PASSWORD} ${DATA} ${BITBUCKET_URL}/${URL}"
 }
 
 ##
@@ -98,7 +98,7 @@ function post {
 ##
 function get {
     local URL=$1
-    curl -s -u ${BITBUCKET_USER}:${BITBUCKET_PASSWORD} ${BITBUCKET_URL}/${URL}
+    curl -s -g -u ${BITBUCKET_USER}:${BITBUCKET_PASSWORD} ${BITBUCKET_URL}/${URL}
 }
 
 ##
@@ -112,10 +112,24 @@ function get {
 ##
 function trigger_build {
     local PROJECT_NAME=$1
-    require_env_var CIRCLE_BRANCH
+    require_env_var BITBUCKET_BRANCH
     require_not_null "Project name not speficied" ${PROJECT_NAME} 
-    TRIGGER_RESPONSE=$(post "tree/$CIRCLE_BRANCH" "build_parameters[CIRCLE_JOB]=${PROJECT_NAME}")
-    echo "$TRIGGER_RESPONSE" | jq -r '.["build_num"]'
+    BODY="$(cat <<-EOM
+    {
+        "target": {
+        "selector": {
+            "type": "custom",
+            "pattern": "$PROJECT_NAME"
+        },
+            "type": "pipeline_ref_target",
+            "ref_name": "$BITBUCKET_BRANCH",
+            "ref_type": "branch"
+        }
+    }   
+EOM
+    )"
+    TRIGGER_RESPONSE=$(post "pipelines/" "${BODY}")
+    echo "$TRIGGER_RESPONSE" | jq -r '.["uuid"]'
 }
 
 ##
@@ -130,8 +144,19 @@ function trigger_build {
 function get_build_status {
     local BUILD_NUM=$1
     require_not_null "Build number not speficied" ${BUILD_NUM} 
-    STATUS_RESPONSE=$(get ${BUILD_NUM})
-    echo "$STATUS_RESPONSE" | jq -r '.["outcome"]'
+    STATUS_RESPONSE=$(get pipelines/${BUILD_NUM})
+    STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.state.result.name')
+    case $STATUS in
+        SUCCESSFUL)
+            echo "success"
+            ;;
+        FAILED)
+            echo "failed"
+            ;;
+        *)
+            echo "null"
+            ;;
+    esac
 }
 
 
@@ -144,7 +169,7 @@ function get_build_status {
 function kill_build {
     local BUILD_NUM=$1
     require_not_null "Build number not speficied" ${BUILD_NUM} 
-    STATUS_RESPONSE=$(post ${BUILD_NUM}/cancel)
+    STATUS_RESPONSE=$(post pipelines/${BUILD_NUM}/stopPipeline)
 }
 
 ##
@@ -154,10 +179,9 @@ function kill_build {
 #   revision hash or null when there were no commits yet
 ##
 function get_last_successful_commit {
-    require_env_var CIRCLE_BRANCH
     #TODO handle case when last successful commit is not on page
-    get "/pipelines/?sort=-created_on" \
-        | jq --raw-output '[.values[]|select((.state.result.name=="SUCCESSFUL") and (.target.selector.type=="default"))] | max_by(.build_number).target.commit.hash'
+    get "pipelines/?sort=-created_on&status=PASSED&status=SUCCESSFUL&page=1&pagelen=20" \
+        | jq --raw-output '[.values[]|select(.target.selector.type=="default")] | max_by(.build_number).target.commit.hash'
 }
 
 ##
@@ -176,9 +200,9 @@ function get_current_commit {
 ##
 
 # Validatate common requirements
-require_env_var CIRCLE_API_USER_TOKEN
-require_env_var CIRCLE_PROJECT_USERNAME
-require_env_var CIRCLE_PROJECT_REPONAME
+require_env_var BITBUCKET_USER
+require_env_var BITBUCKET_PASSWORD
+require_env_var BITBUCKET_REPO_FULL_NAME
 
 # Parse command
 case $1 in
