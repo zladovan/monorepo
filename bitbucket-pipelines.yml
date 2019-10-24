@@ -23,3 +23,29 @@ pipelines:
           script:
             - cd apps/client
             - ./gradlew clean build
+    common:
+      - step:
+          name: Build Commons lib
+          caches:
+            - gradle
+          script:
+            - cd libs/common
+            - ./gradlew clean build
+      
+    logging:
+      - step:
+          name: Build Logging lib
+          caches:
+            - gradle
+          script:
+            - cd libs/logging
+            - ./gradlew clean build    
+
+    gradle-versioning-pluginng:
+      - step:
+          name: Build Gradle Versioning Plugin
+          caches:
+            - gradle
+          script:
+            - cd tools/gradle-plugins/gradle-versioning-plugin
+            - ./gradlew clean build            
