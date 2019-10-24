@@ -10,7 +10,7 @@ pipelines:
       - step:
           name: Build Server
           caches:
-            - apps/server/.gradle
+            - gradle
           script:
             - cd apps/server
             - ./gradlew clean build
@@ -18,7 +18,7 @@ pipelines:
       - step:
           name: Build Client
           caches:
-            - apps/client/.gradle
+            - gradle
           script:
             - cd apps/client
             - ./gradlew clean build
