@@ -1,4 +1,4 @@
-image: openjdk:8
+image: urbantower/openjdk:8
 
 pipelines:
   default:
@@ -8,9 +8,17 @@ pipelines:
   custom:
     server:
       - step:
+          name: Build Server
+          caches:
+            - apps/server/.gradle
           script:
-            - echo "Building server"
+            - cd apps/server
+            - ./gradlew clean build
     client:
       - step:
+          name: Build Client
+          caches:
+            - apps/client/.gradle
           script:
-            - echo "Building client"
+            - cd apps/client
+            - ./gradlew clean build
