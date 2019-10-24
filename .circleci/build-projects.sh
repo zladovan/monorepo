@@ -5,7 +5,7 @@ read -r -d '' USAGE_TEXT << EOM
 Usage:
   build-projects.sh <project>...
 
-  Trigger circleci build for all given projects and wait till all builds are successful.
+  Trigger build for all given projects and wait till all builds are successful.
   Project is identified with relative path to project's root directory from repository root.
   When one of build fail then exit with error message.
 
@@ -25,7 +25,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Configuration with default values
 : "${BUILD_MAX_SECONDS:=$(( 15 * 60 ))}"
 : "${BUILD_CHECK_AFTER_SECONDS:=15}"
-: "${CI_TOOL:=$DIR/circleci.sh}"
+: "${CI_TOOL:=$DIR/pipelines.sh}"
 
 # Validate requirements
 if [[ "$#" -eq 0 ]]; then
