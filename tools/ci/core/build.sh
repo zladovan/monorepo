@@ -14,7 +14,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Configuration with default values
-: "${CI_TOOL:=bitbucket}"
+: "${CI_TOOL:=circleci}"
 : "${CI_PLUGIN:=$DIR/../plugins/${CI_TOOL}.sh}"
 
 # Resolve commit range for current build 
