@@ -25,7 +25,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Configuration with default values
 : "${BUILD_MAX_SECONDS:=$(( 15 * 60 ))}"
 : "${BUILD_CHECK_AFTER_SECONDS:=15}"
-: "${CI_TOOL:=$DIR/pipelines.sh}"
+: "${CI_PLUGIN:=$DIR/../plugins/circleci.sh}"
 
 # Validate requirements
 if [[ "$#" -eq 0 ]]; then
