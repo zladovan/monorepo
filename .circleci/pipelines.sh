@@ -186,7 +186,7 @@ function get_last_successful_commit {
     else
         SELECTOR='(.target.selector.type=="branches") and (.target.selector.pattern=="'${BITBUCKET_BRANCH}'")'
     fi
-    get "pipelines/?sort=-created_on&status=PASSED&status=SUCCESSFUL&page=1&pagelen=20" \
+    get "pipelines/?sort=-created_on&status=PASSED&status=SUCCESSFUL&page=1&pagelen=50" \
         | jq --raw-output "[.values[]|select($SELECTOR)] | max_by(.build_number).target.commit.hash"
 }
 
