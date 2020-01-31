@@ -39,7 +39,7 @@ PROJECTS=()
 for PROJECT in $@; do
     echo "Triggering build for project '$PROJECT'"
     PROJECT_NAME=$(basename $PROJECT)
-    BUILD_NUM=$(${CI_TOOL} build $PROJECT_NAME)    
+    BUILD_NUM=$(${CI_PLUGIN} build $PROJECT_NAME)    
     if [[ -z ${BUILD_NUM} ]] || [[ ${BUILD_NUM} -eq "null" ]]; then
         echo "WARN: No build triggered for project '$PROJECT'. Please check if pipeline is defined in your build tool."
     else 
@@ -58,7 +58,7 @@ for (( BUILD_SECONDS=0; BUILD_SECONDS<=${BUILD_MAX_SECONDS}; BUILD_SECONDS+=$BUI
         BUILD_NUM=$(echo "$PROJECT_INFO" | cut -d "," -f2)    
         BUILD_OUTCOME=$(echo "$PROJECT_INFO" | cut -d "," -f3)
         if [[ "$BUILD_OUTCOME" == "null" ]]; then            
-            BUILD_OUTCOME=$(${CI_TOOL} status ${BUILD_NUM})
+            BUILD_OUTCOME=$(${CI_PLUGIN} status ${BUILD_NUM})
             PROJECTS[$PROJECT_INDEX]="$PROJECT,$BUILD_NUM,$BUILD_OUTCOME"
         fi    
     done
@@ -102,7 +102,7 @@ echo "Not finished builds:"
 for RUNNING in $(echo "$BUILDS_RUNNING"); do 
     echo "  $RUNNING"
     BUILD_NUM=$(echo $RUNNING | sed -r 's/.*\(([0-9]+)\)/\1/')
-    ${CI_TOOL} kill ${BUILD_NUM}
+    ${CI_PLUGIN} kill ${BUILD_NUM}
 done
 echo "All not finished builds were killed"
 exit 1
