@@ -1,7 +1,7 @@
-# Monorepo with gradle and circleci
+# Monorepo with gradle and circleci or bitbucket pipelines
 
 This is an example of how to manage monorepo with [gradle](https://gradle.org/) as build tool
-and [circleci](https://circleci.com/) as CI tool.
+and [circleci](https://circleci.com/) or [bitbucket pipelines](https://bitbucket.org/product/features/pipelines) as CI tool.
 
 ## Motivation
 
@@ -11,7 +11,7 @@ When I push some changes to monorepository **I want to**
   - build all other projects depending on modified projects
   - build projects in parallel if it is possible
   - not build projects when their dependencies are failing
-  - dicover dependencies between projects automatically 
+  - discover dependencies between projects automatically 
 
 ## How it works
 
@@ -23,15 +23,18 @@ Build job is successful only when there were no failed jobs (even when there wer
 
 ### Where are projects defined
 
-There is file `.circleci/projects.txt` which contains lines with [glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)) pointing to root directories of all supported projects.
+There is file `tools/ci/projects.txt` which contains lines with [glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)) pointing to root directories of all supported projects.
 
 ### Where are jobs defined
 
-Jobs are defined in `.circleci/config.yml` as by default when circleci is used. 
+Jobs are defined in default location depending on which CI tool you are using.
+
+  - CircleCI - `.circleci/config.yml`
+  - Bitbucket Pipelines - `bitbucket-pipelines.yml`
 
 ### How projects are mapped to jobs
 
-Currently there is a convention used for mapping project to circleci job. Job name is resolved from project's directory path as last path component. 
+Currently there is a convention used for mapping project to CI job. Job name is resolved from project's directory path as last path component. 
 
 > e.g. project under directory `apps/server` is built by job `server`.
 
@@ -41,22 +44,24 @@ Dependencies are based on Gradle's [composite build](https://docs.gradle.org/cur
 
 ### How dependencies affects job triggering
 
-To respect dependencies between projects jobs are triggered in multiple rounds. For each round one or more jobs are triggered and only when all jobs are succesfuly finished next round is processed. Even if there is only one failed job all next rounds are skipped and whole build is failed. 
+To respect dependencies between projects jobs are triggered in multiple rounds. For each round one or more jobs are triggered and only when all jobs are successfully finished next round is processed. Even if there is only one failed job all next rounds are skipped and whole build is failed. 
 
 ## Special commands
 
-Commit message can contain some special words which if found can modify default building behaviour.
+Commit message can contain some special words which if found can modify default building behavior.
 
 Supported commands:
  - **[rebuild-all]** - build all projects instead of only changed 
 
 ## Implementation
 
-Whole logic is implemented as bunch of [Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) scripts under directory `.circleci`. Every script can be run directly and it should output some documentation when it requires some parameters.
+Whole logic is implemented as bunch of [Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) scripts under directory `tools/ci`. Every script can be run directly and it should output some documentation when it requires some parameters.
+
+Implementation is split to core logic and plugins for different CI tools. Core logic can be found under `tools/ci/core` and plugins are under `tools/ci/plugins`.
 
 ### Which one is main script
 
-Main script is `.circleci/build.sh` and it is only thing started from build job.
+Main script is `tools/ci/core/build.sh` and it is only thing started from build job.
 
 ### Are there any non-standard tools used
 
@@ -66,14 +71,17 @@ There is tool called [jq](https://stedolan.github.io/jq/) used for JSON parsing.
 
 ## How to run locally
 
-It is possible to run `.circleci/build.sh` locally but there is need to provide few environment variables.
+It is possible to run `tools/ci/core/build.sh` locally but there is need to provide few environment variables depending on CI tool used.
 
+### CircleCI
+
+    CI_TOOL=circleci \
     CIRCLE_API_USER_TOKEN=XXX \
     CIRCLE_PROJECT_USERNAME=zladovan \
     CIRCLE_PROJECT_REPONAME=monorepo \
     CIRCLE_BRANCH=master \
     CIRCLE_SHA1=$(git rev-parse HEAD) \
-    .circleci/build.sh
+    tools/ci/core/build.sh
 
 Where:
 
@@ -82,9 +90,25 @@ Where:
 
 >Note that this command could trigger some jobs in circleci
 
+### Bitbucket pipelines
+
+    CI_TOOL=bitbucket \
+    BITBUCKET_USER=zladovan \
+    BITBUCKET_PASSWORD=xxx \
+    BITBUCKET_REPO_FULL_NAME=zladovan/monorepo \
+    BITBUCKET_BRANCH=master \
+    BITBUCKET_COMMIT=$(git rev-parse HEAD) \
+    tools/ci/core/build.sh
+
+Where:
+
+  - **BITBUCKET_COMMIT** should be set to current commit hash, but it can be any commit hash
+
+>Note that this command could trigger some jobs in bitbucket
+
 ## Folder structure
 
-Folder structure used in this repository is only an example of how it can look like. It is possible to use any structure, there is only need to use different patterns in `.circleci/projects.txt` 
+Folder structure used in this repository is only an example of how it can look like. It is possible to use any structure, there is only need to use different patterns in `tools/ci/projects.txt` 
 
     apps/
       └── stand-alone runnable and deployable applications
@@ -95,14 +119,18 @@ Folder structure used in this repository is only an example of how it can look l
     tools/gradle-plugins/
       └── reusable gradle logic (used in apps and libs builds)
 
+    tools/ci
+      └── ci scripts 
+
 ## Known issues
 
-  - jobs are not triggered in parrallel for all cases due to using [tsort](https://en.wikipedia.org/wiki/Tsort) for processing dependecies which produce only sequentional order
+  - jobs are not triggered in parallel for all cases due to using [tsort](https://en.wikipedia.org/wiki/Tsort) for processing dependencies which produce only sequential order
   - not tested on Mac OS and probably there will be issue with `realpath` used
   
 ## Todo
 
-  - improve parrallel exections support
+  - write how to setup for different ci tools
+  - improve parallel executions support
   - create Gradle plugin with same logic as in bash scripts (as a separate project)
   - add support for other popular CI tools (e.g. [Travis](https://travis-ci.org/), [Jenkins](https://jenkins.io/), ...)
   - create [Circleci orb](https://circleci.com/orbs/)

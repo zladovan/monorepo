@@ -21,10 +21,10 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # If project contain `includeBuild` function in any of it's *.gradle file
 # then there is dependency on included project
 for PROJECT in $(${DIR}/list-projects.sh); do    
-    grep --include=\*.gradle -rwh "$DIR/../$PROJECT" -e "includeBuild" | while read INCLUDE; do
+    grep --include=\*.gradle -rwh "$DIR/../../../$PROJECT" -e "includeBuild" | while read INCLUDE; do
         INCLUDE=$(echo "$INCLUDE" | sed -r -n "s/^.*['\"](.*?)['\"].*$/\1/p")
         # todo use already defined projects to find "project id" and without realpath as it's probably not supported on mac
-        INCLUDE=$(realpath --relative-to="$DIR/.." "$DIR/../$PROJECT/$INCLUDE")
+        INCLUDE=$(realpath --relative-to="$DIR/../../.." "$DIR/../../../$PROJECT/$INCLUDE")
         echo "$PROJECT $INCLUDE"
     done
 done

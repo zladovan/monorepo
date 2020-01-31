@@ -14,10 +14,11 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Configuration with default values
-: "${CI_TOOL:=$DIR/pipelines.sh}"
+: "${CI_TOOL:=bitbucket}"
+: "${CI_PLUGIN:=$DIR/../plugins/${CI_TOOL}.sh}"
 
 # Resolve commit range for current build 
-LAST_SUCCESSFUL_COMMIT=$(${CI_TOOL} hash last)
+LAST_SUCCESSFUL_COMMIT=$(${CI_PLUGIN} hash last)
 echo "Last commit: ${LAST_SUCCESSFUL_COMMIT}"
 if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
     #TODO:  set to first commit instead of current changes ?
@@ -25,7 +26,7 @@ if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
     #LAST_SUCCESSFUL_COMMIT=$(git rev-list --max-parents=0 HEAD)
     COMMIT_RANGE="origin/master"
 else
-    COMMIT_RANGE="$(${CI_TOOL} hash current)..${LAST_SUCCESSFUL_COMMIT}"
+    COMMIT_RANGE="$(${CI_PLUGIN} hash current)..${LAST_SUCCESSFUL_COMMIT}"
 fi
 echo "Commit range: $COMMIT_RANGE"
 

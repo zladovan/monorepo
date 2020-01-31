@@ -9,7 +9,7 @@ jobs:
       - run:
           name: Trigger build for modified projects
           shell: /bin/bash
-          command: .circleci/build.sh
+          command: tools/ci/core/build.sh
 
   server:
     docker:

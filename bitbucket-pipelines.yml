@@ -1,11 +1,9 @@
-image: urbantower/openjdk:8
-
 pipelines:
   branches:      
     master:
      - step:
          script: 
-           - bash .circleci/build.sh
+           - bash tools/ci/core/build.sh
   custom:
     server:
       - step:
