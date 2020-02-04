@@ -13,11 +13,11 @@ jobs:
     if: type = push
 
   - name: server
-    before_script: cd apps/server
+    before_install: cd apps/server
     script: ./gradlew clean build
     if: type = api
 
   - name: client
-    before_script: cd apps/client
+    before_install: cd apps/client
     script: ./gradlew clean build
     if: type = api
