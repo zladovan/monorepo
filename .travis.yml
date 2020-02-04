@@ -1,0 +1,28 @@
+language: java
+  
+branches:
+  only:
+  - master
+
+stages:
+  - name: controller
+    if: type = push
+  - name: test
+    if: type = api
+
+jobs:
+  - stage: controller
+  - name: build
+    script: tools/ci/core/build.sh
+  
+  - stage: test
+  
+  - name: server
+    script: 
+      - cd apps/server
+      - ./gradlew clean build
+
+  - name: client
+    script: 
+      - cd apps/client
+      - ./gradlew clean build
