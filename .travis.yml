@@ -4,11 +4,16 @@ branches:
   only:
   - master
 
+env:
+  global:
+    - CI_TOOL=travis
+
+
 jobs:
   include:
   
   - name: build
-    language: minimal
+    language: shell
     script: tools/ci/core/build.sh
     if: env(CI_JOB) IS NOT present OR env(CI_JOB) = build
 
