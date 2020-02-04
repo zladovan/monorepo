@@ -18,11 +18,9 @@ jobs:
   - stage: test
   
   - name: server
-    script: 
-      - cd apps/server
-      - ./gradlew clean build
+    before_script: cd apps/server
+    script: ./gradlew clean build
 
   - name: client
-    script: 
-      - cd apps/client
-      - ./gradlew clean build
+    before_script: cd apps/client
+    script: ./gradlew clean build
