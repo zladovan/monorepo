@@ -8,6 +8,7 @@ jobs:
   include:
   
   - name: build
+    language: minimal
     script: tools/ci/core/build.sh
     if: type = push
 
