@@ -8,13 +8,12 @@ env:
   global:
     - CI_TOOL=travis
 
-
 jobs:
   include:
   
   - name: build
     language: shell
-    script: tools/ci/core/build.sh
+    script: travis token
     if: env(CI_JOB) IS NOT present OR env(CI_JOB) = build
 
   - name: server
