@@ -11,6 +11,7 @@ stages:
     if: type = api
 
 jobs:
+  include:
   - stage: controller
   - name: build
     script: tools/ci/core/build.sh
