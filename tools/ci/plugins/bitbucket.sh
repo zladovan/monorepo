@@ -2,7 +2,7 @@
 
 # Documentation 
 read -r -d '' USAGE_TEXT << EOM
-Usage: pipelines.sh command [<param>...]
+Usage: bitbucket.sh command [<param>...]
 Run given command in bitbucket pipelines.
 
 Requires bitbucket environment variables (additional may be required for specific commands):
