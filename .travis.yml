@@ -10,14 +10,14 @@ jobs:
   - name: build
     language: minimal
     script: tools/ci/core/build.sh
-    if: type = push
+    if: env(CI_JOB) IS NOT present OR env(CI_JOB) = build
 
   - name: server
     before_install: cd apps/server
     script: ./gradlew clean build
-    if: type = api
+    if: env(CI_JOB) = server
 
   - name: client
     before_install: cd apps/client
     script: ./gradlew clean build
-    if: type = api
+    if: env(CI_JOB) = client
