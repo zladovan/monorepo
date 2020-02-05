@@ -20,7 +20,7 @@ Available commands:
                             available positions:
                                 last        hash of last succesfull build commit
                                             only commits of 'build' job are considered
-                                            accepts: TRAVIS_BRANCH, if ommited no branch filtering
+                                            requires: TRAVIS_BRANCH
                                 current     hash of current commit
                                             requires: TRAVIS_COMMIT                         
     help                    display this usage text                             
@@ -28,9 +28,23 @@ EOM
 
 set -e
 
-TRAVIS_URL="https://api.travis-ci.org/repo/${TRAVIS_REPO_SLUG/\//%2F}"
+TRAVIS_URL="https://api.travis-ci.org"
+
+# for some requests root url contains repo resource
+TRAVIS_REPO_RES="repo/${TRAVIS_REPO_SLUG/\//%2F}"
 
 # Functions
+
+##
+# Print message on stderr to do not affect stdout which can be used as input to another commands.
+#
+# Input:
+#    MESSAGE - message to print
+#
+function log {
+    MESSAGE=$1
+    >&2 echo "$MESSAGE"
+}
 
 ##
 # Print error message and exit program with status code 1
@@ -40,8 +54,8 @@ TRAVIS_URL="https://api.travis-ci.org/repo/${TRAVIS_REPO_SLUG/\//%2F}"
 ##
 function fail {
     MESSAGE=$1
-    echo "ERROR: $MESSAGE"
-    echo "$USAGE_TEXT"
+    log "ERROR: $MESSAGE"
+    log "$USAGE_TEXT"
     exit 1
 }
 
@@ -102,6 +116,13 @@ function get {
 ##
 # Trigger build in travis
 #
+# Build in travis is triggered by creating a 'request'.
+# After crating a request there is need to wait for request to be 'approved'.
+# When request is 
+#  - approved we can get build id.
+#  - rejected we consider it as there is no job defined with given name and return 'null'.
+#  - not approved nor rejected within 10 seconds error is raised.
+#
 # Input:
 #   PROJECT_NAME - name of project to start build for
 #
@@ -127,24 +148,44 @@ function trigger_build {
     }
 EOM
     )"
-    TRIGGER_RESPONSE=$(post "requests" "${BODY}")
-    echo "$TRIGGER_RESPONSE" | jq -r .request.id 
+    TRIGGER_RESPONSE=$(post "$TRAVIS_REPO_RES/requests" "${BODY}")
+    REQUEST_ID=$(echo "$TRIGGER_RESPONSE" | jq -r .request.id)
+    for (( WAIT_SECONDS=0; WAIT_SECONDS<=10; WAIT_SECONDS+=1 )); do
+        REQUEST_RESPONSE=$(get $TRAVIS_REPO_RES/request/${REQUEST_ID})
+        REQUEST_RESULT=$(echo "$REQUEST_RESPONSE" | jq -r '.result')
+        case $REQUEST_RESULT in
+            rejected)
+                echo "null"
+                return
+                ;;
+            approved)
+                echo "$REQUEST_RESPONSE" | jq -r .builds[0].id
+                return
+                ;;
+            *)
+                sleep 1
+                ;;   
+        esac
+    done
+    log "ERROR: Timeout when waiting for request '$REQUEST_ID' to be approved"
+    log "$REQUEST_RESPONSE"
+    return 1
 }
 
 ##
 # Get status of travis build
 #
 # Input:
-#   REQUEST_ID - id of request triggering build
+#   BUILD_ID - id of build (resource id, not build number)
 #
 # Output:
 #   success | failed | null
 ##
 function get_build_status {
-    local REQUEST_ID=$1
-    require_not_null "Build number not speficied" ${REQUEST_ID} 
-    STATUS_RESPONSE=$(get request/${REQUEST_ID})
-    STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.builds[0].state')
+    local BUILD_ID=$1
+    require_not_null "Build id not speficied" ${BUILD_ID} 
+    STATUS_RESPONSE=$(get build/${BUILD_ID})
+    STATUS=$(echo "$STATUS_RESPONSE" | jq -r .state)
     case $STATUS in
         passed)
             echo "success"
@@ -160,21 +201,15 @@ function get_build_status {
 
 
 ##
-# Kill travis build or build request if build not created yet
+# Kill travis build
 #
 # Input:
-#   REQUEST_ID - request id which triggered build
+#   BUILD_ID - id of build (resource id, not build number)
 ##
 function kill_build {
-    local REQUEST_ID=$1
-    require_not_null "Build number not speficied" ${REQUEST_ID} 
-    REQUEST_RESPONSE=$(get request/${REQUEST_ID})
-    #TODO handle wait for pending request
-        #REQUEST_TYPE=$(echo "$REQUEST_RESPONSE" | jq -r '."@type"')
-        #if [[ ${REQUEST_TYPE} = 'pending' ]]; then
-        #fi
-    BUILD_NUM=$(get request/${REQUEST_ID} | jq -r .builds[0].id)
-    STATUS_RESPONSE=$(post build/${BUILD_NUM}/cancel)
+    local BUILD_ID=$1
+    require_not_null "Build id not speficied" ${BUILD_ID} 
+    STATUS_RESPONSE=$(post build/${BUILD_ID}/cancel)
 }
 
 ##
@@ -186,7 +221,7 @@ function kill_build {
 function get_last_successful_commit {
     #TODO handle case when last successful commit is not on page
     SELECTOR='(.jobs[] | select(.config.name=="build")) and (.state=="passed") and (.branch.name=="'${TRAVIS_BRANCH}'")'
-    get "builds?include=job.config" | jq -r "[.builds[] | select($SELECTOR)] | max_by(.number | tonumber).commit.sha"
+    get "$TRAVIS_REPO_RES/builds?include=job.config" | jq -r "[.builds[] | select($SELECTOR)] | max_by(.number | tonumber).commit.sha"
 }
 
 ##
