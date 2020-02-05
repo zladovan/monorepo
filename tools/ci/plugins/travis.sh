@@ -99,7 +99,14 @@ function post {
     if [[ ! -z $DATA ]]; then
         DATA="-H 'Content-Type: application/json' -d '$DATA'"
     fi
-    eval "curl -XPOST -s -g -H 'Travis-API-Version: 3' -H 'Authorization: token ${TRAVIS_TOKEN}' ${DATA} ${TRAVIS_URL}/${URL}"
+    RESPONSE=$(eval "curl -XPOST -s -g -H 'Travis-API-Version: 3' -H 'Authorization: token ${TRAVIS_TOKEN}' ${DATA} ${TRAVIS_URL}/${URL}")
+    TYPE=$(echo "$RESPONSE" | jq -r '."@type"')
+    if [[ ${TYPE} = 'error' ]]; then 
+        log "ERROR: Error response from travis POST request"
+        log "$RESPONSE"
+        return 1
+    fi
+    echo "$RESPONSE"
 }
 
 ##
@@ -130,6 +137,7 @@ function get {
 #   build number
 ##
 function trigger_build {
+    # TODO there is a ban for 1 hour if you make 10 POST requests within 30 seconds
     local PROJECT_NAME=$1
     require_env_var TRAVIS_BRANCH
     require_not_null "Project name not speficied" ${PROJECT_NAME} 
