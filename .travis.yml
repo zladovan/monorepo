@@ -27,10 +27,10 @@ jobs:
 
   - name: server
     before_install: cd apps/server
-    script: ./gradlew clean build
+    script: ./gradlew clean build --no-daemon
     if: env(CI_JOB) = server
 
   - name: client
     before_install: cd apps/client
-    script: ./gradlew clean build
+    script: ./gradlew clean build --no-daemon
     if: env(CI_JOB) = client
