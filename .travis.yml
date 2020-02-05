@@ -13,7 +13,7 @@ jobs:
   
   - name: build
     language: shell
-    script: travis token
+    script: tools/ci/core/build.sh
     if: env(CI_JOB) IS NOT present OR env(CI_JOB) = build
 
   - name: server
