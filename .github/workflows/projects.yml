@@ -5,6 +5,7 @@ on: repository_dispatch
 jobs:
 
   server:
+    runs-on: ubuntu-latest
     steps:
       - name: Build Server
         if: github.event.job == job.id
