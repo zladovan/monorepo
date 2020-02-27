@@ -5,7 +5,7 @@ on: repository_dispatch
 jobs:
 
   server:
-    if: github.event.job == job.id
+    if: github.event.job == 'server'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
