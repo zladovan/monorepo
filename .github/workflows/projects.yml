@@ -5,10 +5,14 @@ on: repository_dispatch
 jobs:
 
   server:
-    if: github.event.job == 'server'
+    if: github.event.client_payload.job == 'server'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - name: Build Server
         working-directory: ./apps/server
-        run: ./gradlew clean build
+        env:
+          CI_TEST: ${{ github.event }}
+        run: |
+          echo ${CI_TEST}
+          ./gradlew clean build
