@@ -5,10 +5,10 @@ on: repository_dispatch
 jobs:
 
   server:
+    if: github.event.job == job.id
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - name: Build Server
-        if: github.event.job == job.id
         working-directory: ./apps/server
         run: ./gradlew clean build
