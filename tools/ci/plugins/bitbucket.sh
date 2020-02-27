@@ -36,6 +36,17 @@ BITBUCKET_URL="https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_FULL_
 # Functions
 
 ##
+# Print message on stderr to do not affect stdout which can be used as input to another commands.
+#
+# Input:
+#    MESSAGE - message to print
+#
+function log {
+    MESSAGE=$1
+    >&2 echo "$MESSAGE"
+}
+
+##
 # Print error message and exit program with status code 1
 #
 # Input:
@@ -43,8 +54,8 @@ BITBUCKET_URL="https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_FULL_
 ##
 function fail {
     MESSAGE=$1
-    echo "ERROR: $MESSAGE"
-    echo "$USAGE_TEXT"
+    log "ERROR: $MESSAGE"
+    log "$USAGE_TEXT"
     exit 1
 }
 

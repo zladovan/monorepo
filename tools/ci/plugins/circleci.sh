@@ -37,6 +37,17 @@ CIRCLECI_URL="https://circleci.com/api/v1.1/project/github/${CIRCLE_PROJECT_USER
 # Functions
 
 ##
+# Print message on stderr to do not affect stdout which can be used as input to another commands.
+#
+# Input:
+#    MESSAGE - message to print
+#
+function log {
+    MESSAGE=$1
+    >&2 echo "$MESSAGE"
+}
+
+##
 # Print error message and exit program with status code 1
 #
 # Input:
@@ -44,8 +55,8 @@ CIRCLECI_URL="https://circleci.com/api/v1.1/project/github/${CIRCLE_PROJECT_USER
 ##
 function fail {
     MESSAGE=$1
-    echo "ERROR: $MESSAGE"
-    echo "$USAGE_TEXT"
+    log "ERROR: $MESSAGE"
+    log "$USAGE_TEXT"
     exit 1
 }
 
