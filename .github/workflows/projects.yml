@@ -1,0 +1,13 @@
+name: projects
+
+on: repository_dispatch
+
+jobs:
+
+  server:
+    steps:
+      - name: Build Server
+        if: github.event.job == job.id
+        run: |
+          cd apps/server
+          ./gradlew clean build

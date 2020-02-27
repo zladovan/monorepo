@@ -1,0 +1,11 @@
+name: main
+
+on: [push]
+
+jobs:
+  build:
+    steps:
+      - name: Run main build runner
+        env:
+          CI_TOOL: github
+        run: tools/ci/core/build.sh
