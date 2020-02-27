@@ -7,8 +7,8 @@ jobs:
   server:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@master
       - name: Build Server
         if: github.event.job == job.id
-        run: |
-          cd apps/server
-          ./gradlew clean build
+        working-directory: ./apps/server
+        run: ./gradlew clean build
