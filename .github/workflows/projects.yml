@@ -11,8 +11,4 @@ jobs:
       - uses: actions/checkout@master
       - name: Build Server
         working-directory: ./apps/server
-        env:
-          CI_TEST: ${{ github.event }}
-        run: |
-          echo ${CI_TEST}
-          ./gradlew clean build
+        run: ./gradlew clean build
