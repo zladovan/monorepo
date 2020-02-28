@@ -91,7 +91,7 @@ for (( BUILD_SECONDS=0; BUILD_SECONDS<=${BUILD_MAX_SECONDS}; BUILD_SECONDS+=$BUI
         done
         sleep ${BUILD_CHECK_AFTER_SECONDS}        
     else
-        echo "Build succesul for all projects: $@"
+        echo "Build successful for all projects: $@"
         exit 0
     fi
 
