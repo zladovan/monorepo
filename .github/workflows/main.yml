@@ -9,7 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - uses: actions/checkout@master
       - name: Run main build runner
         env:
           CI_TOOL: github
-        run: tools/ci/core/build.sh
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./tools/ci/core/build.sh
