@@ -179,7 +179,7 @@ EOM
 function get_build_status {
     local BUILD_ID=$1
     require_not_null "Build id not speficied" ${BUILD_ID} 
-    STATUS_RESPONSE=$(get actions/runs/${BUILD_ID}/)
+    STATUS_RESPONSE=$(get actions/runs/${BUILD_ID})
     STATUS=$(echo "$STATUS_RESPONSE" | jq -r .conclusion)
     case $STATUS in
         success)
