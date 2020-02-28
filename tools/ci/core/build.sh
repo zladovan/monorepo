@@ -12,7 +12,6 @@ set -e
 
 # Find script directory (no support for symlinks)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
->&2 echo "Root dir: $DIR"
 
 # Configuration with default values
 : "${CI_TOOL:=circleci}"
@@ -22,14 +21,23 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 LAST_SUCCESSFUL_COMMIT=$(${CI_PLUGIN} hash last)
 echo "Last commit: ${LAST_SUCCESSFUL_COMMIT}"
 if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
-    #TODO:  set to first commit instead of current changes ?
-    #       there was issue when something failed on first commit and after fix next commit just shown "No projects to build"
-    #LAST_SUCCESSFUL_COMMIT=$(git rev-list --max-parents=0 HEAD)
     COMMIT_RANGE="origin/master"
 else
     COMMIT_RANGE="$(${CI_PLUGIN} hash current)..${LAST_SUCCESSFUL_COMMIT}"
 fi
 echo "Commit range: $COMMIT_RANGE"
+
+# Ensure we have all changes from last successful build
+if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
+    git pull
+else 
+    DEPTH=1
+    until git show ${LAST_SUCCESSFUL_COMMIT} > /dev/null
+    do
+        DEPTH=$((DEPTH+5))
+        git fetch --depth=$DEPTH
+    done
+fi
 
 # Collect all modified projects
 PROJECTS_TO_BUILD=$($DIR/list-projects-to-build.sh $COMMIT_RANGE)
