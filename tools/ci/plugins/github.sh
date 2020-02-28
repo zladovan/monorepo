@@ -146,7 +146,7 @@ function trigger_build {
     NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     BODY="$(cat <<-EOM
     {
-        "event_type": "run-workflow",
+        "event_type": "build-${PROJECT_NAME}",
         "client_payload": {
             "job": "${PROJECT_NAME}"
         }
