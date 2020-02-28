@@ -33,7 +33,7 @@ if [[ $(git rev-parse --is-shallow-repository) == 'true' ]]; then
         git fetch --unshallow
     else 
         DEPTH=1
-        until git show ${LAST_SUCCESSFUL_COMMIT} > /dev/null
+        until git show ${LAST_SUCCESSFUL_COMMIT} > /dev/null 2>&1
         do
             DEPTH=$((DEPTH+5))
             git fetch --depth=$DEPTH
