@@ -28,15 +28,17 @@ fi
 echo "Commit range: $COMMIT_RANGE"
 
 # Ensure we have all changes from last successful build
-if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
-    git pull
-else 
-    DEPTH=1
-    until git show ${LAST_SUCCESSFUL_COMMIT} > /dev/null
-    do
-        DEPTH=$((DEPTH+5))
-        git fetch --depth=$DEPTH
-    done
+if [[ $(git rev-parse --is-shallow-repository) == 'true' ]]; then
+    if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
+        git fetch --unshallow
+    else 
+        DEPTH=1
+        until git show ${LAST_SUCCESSFUL_COMMIT} > /dev/null
+        do
+            DEPTH=$((DEPTH+5))
+            git fetch --depth=$DEPTH
+        done
+    fi
 fi
 
 # Collect all modified projects
