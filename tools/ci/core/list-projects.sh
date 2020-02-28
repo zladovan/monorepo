@@ -15,7 +15,6 @@ set -e
 
 # Find script directory (no support for symlinks)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
->&2 echo "Root dir for projects search: $DIR"
 
 # Just resolve all patterns in projects file
 for PROJECT in $(cat ${DIR}/../projects.txt); do 
