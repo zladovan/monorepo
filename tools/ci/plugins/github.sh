@@ -188,6 +188,9 @@ function get_build_status {
         failure|cancelled)
             echo "failed"
             ;;
+        skipped)
+            echo "skipped"
+            ;;
         *)
             echo "null"
             ;;

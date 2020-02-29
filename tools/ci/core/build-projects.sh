@@ -78,6 +78,10 @@ for (( BUILD_SECONDS=0; BUILD_SECONDS<=${BUILD_MAX_SECONDS}; BUILD_SECONDS+=$BUI
             success)
                 SUCCESSFUL_COUNT=$((SUCCESSFUL_COUNT+1))            
                 ;;
+            skipped)
+                echo "WARN: Build was skipped for project '$PROJECT'. Please check if pipeline is defined in your build tool."
+                SUCCESSFUL_COUNT=$((SUCCESSFUL_COUNT+1))            
+                ;;
             *)
                 BUILDS_RUNNING="$BUILDS_RUNNING $PROJECT($BUILD_NUM)"
                 ;;
