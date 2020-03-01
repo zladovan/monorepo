@@ -1,4 +1,4 @@
-name: projects
+name: server
 
 on: repository_dispatch
 
