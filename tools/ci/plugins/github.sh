@@ -127,11 +127,12 @@ function get_branch {
 # Trigger build in github
 #
 # Build in github is triggered by dispatching custom event with job parameter set to project name.
-# After event is triggered workflow should be started.
-# There is no direct connection between triggered event and workflow run to be used as filter 
-# so we take just first started wrokflow run after time of event trigger. 
+# After event is triggered zero, one or more workflows can be started.
+# We need to check all started workflows if they contain job with same name as project name.
+# If such a job is found then it's workflow's run id is returned as build id.
 #
-# There is timeout set to 10 seconds for the workflow run to be started.
+# There is timeout set to 5 seconds for the workflow run to be started.
+# If timeout is reached it is considered that job was not defined and 'null' is returned.
 #
 # Input:
 #   PROJECT_NAME - name of project to start build for
@@ -154,8 +155,16 @@ function trigger_build {
 EOM
     )"
     post dispatches "${BODY}"
-    for (( WAIT_SECONDS=0; WAIT_SECONDS<=10; WAIT_SECONDS+=1 )); do
-        ID=$(get 'actions/runs?event=repository_dispatch' | jq '[ .workflow_runs[] | select(.created_at > "'${NOW}'" and .head_branch == "'${BRANCH}'")] | map(.id) | .[0]')
+    for (( WAIT_SECONDS=0; WAIT_SECONDS<=5; WAIT_SECONDS+=1 )); do
+        WFS=$(get 'actions/runs?event=repository_dispatch' | jq '[ .workflow_runs[] | select(.created_at > "'${NOW}'" and .head_branch == "'${BRANCH}'") ]')
+        ID='null'
+        for JOBS_URL in $(echo "$WFS" | jq -r 'map(.jobs_url) | .[]'); do 
+            JOBS_URL=${JOBS_URL/$GITHUB_URL/}
+            ID=$(get ${JOBS_URL:1} | jq '[ .jobs[] | select(.name == "'${PROJECT_NAME}'") ] | map(.run_id) | .[0]')
+            if [[ ${ID} != 'null' ]]; then 
+                break
+            fi
+        done
         if [[ ${ID} == 'null' ]]; then 
             sleep 1
         else
@@ -163,8 +172,7 @@ EOM
             return
         fi
     done
-    log "ERROR: Timeout when waiting for project '$PROJECT_NAME' build to be started"
-    return 1
+    echo 'null'
 }
 
 ##
