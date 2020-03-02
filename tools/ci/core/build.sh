@@ -36,6 +36,7 @@ if [[ $(git rev-parse --is-shallow-repository) == 'true' ]]; then
         until git show ${LAST_SUCCESSFUL_COMMIT} > /dev/null 2>&1
         do
             DEPTH=$((DEPTH+5))
+            echo "Last commit not fetched yet. Fetching depth $DEPTH."
             git fetch --depth=$DEPTH
         done
     fi
