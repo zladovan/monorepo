@@ -28,7 +28,9 @@ fi
 echo "Commit range: $COMMIT_RANGE"
 
 # Ensure we have all changes from last successful build
-if [[ $(git rev-parse --is-shallow-repository) == 'true' ]]; then
+IS_SHALLOW=$(git rev-parse --is-shallow-repository)
+echo "Is shallow clone: $IS_SHALLOW"
+if [[ ${IS_SHALLOW} == 'true' ]]; then
     if [[ ${LAST_SUCCESSFUL_COMMIT} == "null" ]]; then
         git fetch --unshallow
     else 
