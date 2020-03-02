@@ -1,7 +1,13 @@
-# Monorepo with gradle and circleci or bitbucket pipelines
+# Monorepo builds with Gradle and popular CI tools
 
-This is an example of how to manage monorepo with [gradle](https://gradle.org/) as build tool
-and [circleci](https://circleci.com/) or [bitbucket pipelines](https://bitbucket.org/product/features/pipelines) as CI tool.
+This is an example of how to manage building projects inside monorepo with [Gradle](https://gradle.org/) as build tool and one of the following services as CI tool:
+
+| Service | Status |
+|---------|--------|
+| [CircleCI](https://circleci.com/) | [![CircleCI](https://circleci.com/gh/zladovan/monorepo.svg?style=svg)](https://circleci.com/gh/zladovan/workflows/monorepo)
+| [Bitbucket Pipelines](https://bitbucket.org/product/features/pipelines) | [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/zladovan/monorepo)](https://bitbucket.org/zladovan/monorepo/addon/pipelines/home) |
+| [Travis CI](https://travis-ci.org/) | [![Travis CI](https://travis-ci.org/zladovan/monorepo.svg?branch=master)](https://travis-ci.org/zladovan/monorepo)
+| [GitHub Actions](https://github.com/features/actions) | [![GitHub Actions](https://github.com/zladovan/monorepo/workflows/main/badge.svg)](https://github.com/zladovan/monorepo/actions)
 
 ## Motivation
 
@@ -15,7 +21,7 @@ When I push some changes to monorepository **I want to**
 
 ## How it works
 
-There is only one job called **build** started automatically on every push. This job is responsible for triggering another jobs for each affected project in order with respecting project dependencies.
+There is only one main job called **build** started automatically on every push. This job is responsible for triggering another jobs for each affected project in order with respecting project dependencies.
 
 Build job is running until all triggered jobs are finished.
 
@@ -31,6 +37,8 @@ Jobs are defined in default location depending on which CI tool you are using.
 
   - CircleCI - `.circleci/config.yml`
   - Bitbucket Pipelines - `bitbucket-pipelines.yml`
+  - Travis CI - `.travis.yml`
+  - GitHub Actions - `.github/workflows/`
 
 ### How projects are mapped to jobs
 
@@ -41,6 +49,8 @@ Currently there is a convention used for mapping project to CI job. Job name is 
 ### How dependencies between projects are resolved
 
 Dependencies are based on Gradle's [composite build](https://docs.gradle.org/current/userguide/composite_builds.html) feature. To define dependency between projects use `includeBuild` function in project build script (usually in `settings.gradle`).
+
+>Whole concept could be reused for other build tools than Gradle too. If you would like to use different build tool modify `tools/ci/list-dependencies.sh`.
 
 ### How dependencies affects job triggering
 
@@ -67,7 +77,7 @@ Main script is `tools/ci/core/build.sh` and it is only thing started from build 
 
 There is tool called [jq](https://stedolan.github.io/jq/) used for JSON parsing.
 
->You need to care only when you want run it locally or you are using docker images not from circleci for jobs execution. 
+>You need to care only when you want run it locally because **jq** is usually part of default images used in CI tools.
 
 ## How to run locally
 
@@ -106,6 +116,37 @@ Where:
 
 >Note that this command could trigger some jobs in bitbucket
 
+### Travis CI
+
+    CI_TOOL=travis \
+    TRAVIS_TOKEN=xxx \
+    TRAVIS_REPO_SLUG=zladovan/monorepo \
+    TRAVIS_BRANCH=master \
+    TRAVIS_COMMIT=$(git rev-parse HEAD) \
+    tools/ci/core/build.sh
+
+Where:
+
+  - **TRAVIS_COMMIT** should be set to current commit hash, but it can be any commit hash
+
+>Note that this command could trigger some jobs in travis
+
+### GitHub Actions
+
+    CI_TOOL=github \
+    GITHUB_REPOSITORY=zladovan/monorepo \
+    GITHUB_TOKEN=xxx \
+    GITHUB_REF=refs/head/master \
+    GITHUB_SHA=$(git rev-parse HEAD) \
+    tools/ci/core/build.sh
+
+Where:
+
+  - **GITHUB_TOKEN** should be your personal access token with **repo** rights
+  - **GITHUB_SHA** should be set to current commit hash, but it can be any commit hash
+
+>Note that this command could trigger some jobs in github
+
 ## Folder structure
 
 Folder structure used in this repository is only an example of how it can look like. It is possible to use any structure, there is only need to use different patterns in `tools/ci/projects.txt` 
@@ -126,14 +167,19 @@ Folder structure used in this repository is only an example of how it can look l
 
   - jobs are not triggered in parallel for all cases due to using [tsort](https://en.wikipedia.org/wiki/Tsort) for processing dependencies which produce only sequential order
   - not tested on Mac OS and probably there will be issue with `realpath` used
+  - Travis CI has some limitations around how many builds can be started via API
   
 ## Todo
 
   - write how to setup for different ci tools
   - improve parallel executions support
+  - add special command to trigger build for specific project
   - create Gradle plugin with same logic as in bash scripts (as a separate project)
-  - add support for other popular CI tools (e.g. [Travis](https://travis-ci.org/), [Jenkins](https://jenkins.io/), ...)
+  - add support for other popular CI tools (e.g. [Jenkins](https://jenkins.io/), ...)
+  - create downloadable package which could be installed to repo during build time
   - create [Circleci orb](https://circleci.com/orbs/)
+  - create [GitHub Action](https://help.github.com/en/actions/building-actions)
+  
 
 ## Credits
 
