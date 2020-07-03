@@ -50,7 +50,7 @@ Currently there is a convention used for mapping project to CI job. Job name is 
 
 Dependencies are based on Gradle's [composite build](https://docs.gradle.org/current/userguide/composite_builds.html) feature. To define dependency between projects use `includeBuild` function in project build script (usually in `settings.gradle`).
 
->Whole concept could be reused for other build tools than Gradle too. If you would like to use different build tool modify `tools/ci/list-dependencies.sh`.
+If you are not using Gradle or you want to add some additional dependency you can specify it in dependency file. Default location is in each project directory on path `.ci/dependencies.txt`. Location can be changed by setting environment variable `CI_DEPENDENCIES_FILE`. File should contain lines with paths to other projects (relative paths to monorepo root, e.g. libs/common).
 
 ### How dependencies affects job triggering
 
