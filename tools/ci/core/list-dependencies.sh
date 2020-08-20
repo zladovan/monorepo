@@ -5,7 +5,7 @@
 # Poject is identified with relative path to project's root directory from repository root.
 #
 # Dependencies can be specified in text file where each line is path (from monorepo root) to other project.
-# Default location of dependency file is in root dir of each poject on path `.ci/dependencies.txt`.
+# Default location of dependency file is in root dir of each project on path `.ci/dependencies.txt`.
 # Location of dependency file can be changed by setting environment variable `CI_DEPENDENCIES_FILE`.
 #
 # There is a support for automatic discovery of dependencies for Gradle projects.
